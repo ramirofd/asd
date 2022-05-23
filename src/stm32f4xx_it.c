@@ -16,6 +16,8 @@
 #endif
 #include "stm32f4xx_it.h"
 
+#include "motor.h"
+
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
@@ -39,4 +41,5 @@ void SysTick_Handler(void)
 #ifdef USE_RTOS_SYSTICK
 	osSystickHandler();
 #endif
+	MOTOR_Callback();
 }

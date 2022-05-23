@@ -2,6 +2,7 @@
 #include "stm32f4xx.h"
 #include "stm32f4xx_hal.h"
 #include "bsp.h"
+#include "motor.h"
 
 #define STATUS_LED_PIN					GPIO_PIN_12
 #define STATUS_LED_PORT					GPIOD
@@ -12,7 +13,8 @@ void BSP_StatusLED_Init();
 
 void BSP_Init() {
 	HAL_Init();
-	BSP_StatusLED_Init();
+	//BSP_StatusLED_Init();
+	MOTOR_Init();
 }
 
 void BSP_StatusLED_Init() {
