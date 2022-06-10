@@ -18,16 +18,7 @@
 
 #include "motor.h"
 
-/* Private typedef -----------------------------------------------------------*/
-/* Private define ------------------------------------------------------------*/
-/* Private macro -------------------------------------------------------------*/
-/* Private variables ---------------------------------------------------------*/
-/* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
-
-/******************************************************************************/
-/*            	  	    Processor Exceptions Handlers                         */
-/******************************************************************************/
+extern UART_HandleTypeDef huart2;
 
 /**
   * @brief  This function handles SysTick Handler, but only if no RTOS defines it.
@@ -42,4 +33,9 @@ void SysTick_Handler(void)
 	osSystickHandler();
 #endif
 	MOTOR_Callback();
+}
+
+void USART2_IRQHandler(void)
+{
+  HAL_UART_IRQHandler(&huart2);
 }

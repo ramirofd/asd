@@ -9,7 +9,6 @@
 */
 
 #include "bsp.h"
-#include "motor.h"
 
 int main(void)
 {
@@ -19,11 +18,14 @@ int main(void)
 	MOTOR_Set(MOTOR_2, 2000, MOTOR_ON);
 	MOTOR_Set(MOTOR_3, 3000, MOTOR_ON);
 	MOTOR_Set(MOTOR_4, 4000, MOTOR_ON);
+	SERIAL_Init();
+
+
 
 	for(;;){
-
+		SERIAL_Write();
 		//BSP_StatusLED_Set();
-		//BSP_Delay(500);
+		BSP_Delay(500);
 		//BSP_StatusLED_Reset();
 		//BSP_Delay(500);
 

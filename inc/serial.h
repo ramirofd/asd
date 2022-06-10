@@ -9,5 +9,7 @@
 #define SERIAL_H_
 
 void SERIAL_Init(void);
+void SERIAL_Write(char *data);
+
 
 #endif /* SERIAL_H_ */

@@ -8,27 +8,69 @@
 #include "serial.h"
 #include "stm32f4xx.h"
 #include "stm32f4xx_hal.h"
+#include <string.h>
 
-UART_HandleTypeDef UART_Handler;
+UART_HandleTypeDef huart2;
+char Message[] = "Welcome to Microcontrollers Lab\r\n";
 
 void SERIAL_Init(void)
 {
-	__HAL_RCC_GPIOA_CLK_ENABLE(); /* Enable clock to PORTA - UART2 pins PA2 and PA3 */
-	__HAL_RCC_USART2_CLK_ENABLE(); /* Enable clock to UART2 module */
+	huart2.Instance = USART2;
+	huart2.Init.BaudRate = 115200;
+	huart2.Init.WordLength = UART_WORDLENGTH_8B;
+	huart2.Init.StopBits = UART_STOPBITS_1;
+	huart2.Init.Parity = UART_PARITY_NONE;
+	huart2.Init.Mode = UART_MODE_TX_RX;
+	huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+	huart2.Init.OverSampling = UART_OVERSAMPLING_16;
+	if (HAL_UART_Init(&huart2) != HAL_OK)
+	{
+		Error_Handler();
+	}
+}
 
-	GPIO_InitTypeDef UART2_GPIO_Handler; /*Create GPIO_InitTypeDef struct instance */
-	UART2_GPIO_Handler.Pin = GPIO_PIN_2 | GPIO_PIN_3;
-	UART2_GPIO_Handler.Mode = GPIO_MODE_AF_PP;
-	UART2_GPIO_Handler.Pull = GPIO_PULLUP;
-	UART2_GPIO_Handler.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-	UART2_GPIO_Handler.Alternate = GPIO_AF7_USART2;
-	HAL_GPIO_Init(GPIOA, &UART2_GPIO_Handler);
-	//UART Configuration
-	UART_Handler.Instance = USART2;
-	UART_Handler.Init.BaudRate = 115200;
-	UART_Handler.Init.Mode = UART_MODE_TX_RX;
-	UART_Handler.Init.WordLength = UART_WORDLENGTH_8B;
-	UART_Handler.Init.StopBits = UART_STOPBITS_1;
-	UART_Handler.Init.OverSampling = UART_OVERSAMPLING_16;
-	HAL_UART_Init(&UART_Handler);
+void SERIAL_Write(char *data) {
+	HAL_UART_Transmit(&huart2, (uint8_t *)data, strlen(Message), 10);
+}
+
+void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
+{
+
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
+  if(uartHandle->Instance==USART2)
+  {
+    __HAL_RCC_USART2_CLK_ENABLE();
+
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    /**USART2 GPIO Configuration
+    PA2     ------> USART2_TX
+    PA3     ------> USART2_RX
+    */
+    GPIO_InitStruct.Pin = GPIO_PIN_2|GPIO_PIN_3;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+    GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    HAL_NVIC_SetPriority(USART2_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(USART2_IRQn);
+  }
+}
+
+void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
+{
+
+  if(uartHandle->Instance==USART2)
+  {
+    __HAL_RCC_USART2_CLK_DISABLE();
+
+    /**USART2 GPIO Configuration
+    PA2     ------> USART2_TX
+    PA3     ------> USART2_RX
+    */
+    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_2|GPIO_PIN_3);
+
+    HAL_NVIC_DisableIRQ(USART2_IRQn);
+  }
 }
