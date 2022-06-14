@@ -10,7 +10,13 @@
 #include "stm32f4xx_hal.h"
 #include <string.h>
 
+#define RX_BUFF_SIZE 1
+
+extern void Error_Handler(void);
+
 UART_HandleTypeDef huart2;
+uint8_t UART_rxBuffer[RX_BUFF_SIZE] = {0};
+
 
 void SERIAL_Init(void)
 {
@@ -26,6 +32,7 @@ void SERIAL_Init(void)
 	{
 		Error_Handler();
 	}
+	HAL_UART_Receive_IT (&huart2, UART_rxBuffer, RX_BUFF_SIZE);
 }
 
 void SERIAL_Write(char *data) {
@@ -72,4 +79,10 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 
     HAL_NVIC_DisableIRQ(USART2_IRQn);
   }
+}
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+    HAL_UART_Transmit(&huart2, UART_rxBuffer, RX_BUFF_SIZE, 100);
+    HAL_UART_Receive_IT(&huart2, UART_rxBuffer, RX_BUFF_SIZE);
 }

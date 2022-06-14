@@ -23,9 +23,8 @@ int main(void)
 
 
 	for(;;){
-		SERIAL_Write();
 		//BSP_StatusLED_Set();
-		BSP_Delay(500);
+//		BSP_Delay(500);
 		//BSP_StatusLED_Reset();
 		//BSP_Delay(500);
 
