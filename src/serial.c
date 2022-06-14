@@ -11,7 +11,6 @@
 #include <string.h>
 
 UART_HandleTypeDef huart2;
-char Message[] = "Welcome to Microcontrollers Lab\r\n";
 
 void SERIAL_Init(void)
 {
@@ -30,7 +29,7 @@ void SERIAL_Init(void)
 }
 
 void SERIAL_Write(char *data) {
-	HAL_UART_Transmit(&huart2, (uint8_t *)data, strlen(Message), 10);
+	HAL_UART_Transmit(&huart2, (uint8_t *)data, strlen(data), 10);
 }
 
 void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
