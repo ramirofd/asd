@@ -10,7 +10,7 @@
 #include "stm32f4xx_hal.h"
 #include <string.h>
 
-#define RX_BUFF_SIZE 1
+#define RX_BUFF_SIZE 2
 
 extern void Error_Handler(void);
 

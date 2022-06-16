@@ -20,8 +20,6 @@ int main(void)
 	MOTOR_Set(MOTOR_4, 4000, MOTOR_ON);
 	SERIAL_Init();
 
-
-
 	for(;;){
 		//BSP_StatusLED_Set();
 //		BSP_Delay(500);
