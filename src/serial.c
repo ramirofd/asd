@@ -10,18 +10,36 @@
 #include "stm32f4xx_hal.h"
 #include <string.h>
 
-#define RX_BUFF_SIZE 2
+#define RX_BUFF_SIZE 1
+#define DATA_SIZE	 40
+#define START 		'*'
+#define END   		';'
 
 extern void Error_Handler(void);
 
+
+enum RX_STATE{WAIT_START, RECV_DATA};
+enum DATA_STATE{NOT_AVAILABLE, AVAILABLE};
+
+enum RX_STATE rx_state;
+enum DATA_STATE data_state;
+
 UART_HandleTypeDef huart2;
 uint8_t UART_rxBuffer[RX_BUFF_SIZE] = {0};
+uint8_t data[DATA_SIZE] = {0};
+int data_ptr = 0;
 
+void resetData() {
+	data_state = NOT_AVAILABLE;
+	for(int i=0; i<DATA_SIZE; i++)
+		data[i] = 0;
+	data_ptr = 0;
+}
 
 void SERIAL_Init(void)
 {
 	huart2.Instance = USART2;
-	huart2.Init.BaudRate = 115200;
+	huart2.Init.BaudRate = 9600;
 	huart2.Init.WordLength = UART_WORDLENGTH_8B;
 	huart2.Init.StopBits = UART_STOPBITS_1;
 	huart2.Init.Parity = UART_PARITY_NONE;
@@ -32,11 +50,22 @@ void SERIAL_Init(void)
 	{
 		Error_Handler();
 	}
+	rx_state = WAIT_START;
+	resetData();
 	HAL_UART_Receive_IT (&huart2, UART_rxBuffer, RX_BUFF_SIZE);
 }
 
-void SERIAL_Write(char *data) {
-	HAL_UART_Transmit(&huart2, (uint8_t *)data, strlen(data), 10);
+void SERIAL_Write(uint8_t *data,  uint16_t size) {
+	HAL_UART_Transmit(&huart2, data, size, 10);
+}
+
+int SERIAL_Available(){
+	return data_state==AVAILABLE;
+}
+
+uint8_t* SERIAL_GetData(){
+	data_state=NOT_AVAILABLE;
+	return data;
 }
 
 void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
@@ -83,6 +112,24 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-    HAL_UART_Transmit(&huart2, UART_rxBuffer, RX_BUFF_SIZE, 100);
+    switch(UART_rxBuffer[0]) {
+		case START:
+			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_SET);
+			rx_state = RECV_DATA;
+			resetData();
+			break;
+		case END:
+			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_RESET);
+			rx_state = WAIT_START;
+			data_state = AVAILABLE;
+			break;
+		default:
+			if(rx_state==RECV_DATA){
+				data[data_ptr] = UART_rxBuffer[0];
+				data_ptr++;
+			}
+			break;
+    }
+
     HAL_UART_Receive_IT(&huart2, UART_rxBuffer, RX_BUFF_SIZE);
 }
