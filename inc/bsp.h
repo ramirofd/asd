@@ -1,6 +1,7 @@
 #include "stdint.h"
 #include "motor.h"
 #include "serial.h"
+#include "spi.h"
 
 void BSP_Init();
 void BSP_StatusLED_Set();
