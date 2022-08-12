@@ -4,6 +4,8 @@
 #include "bsp.h"
 
 #define STATUS_LED_PIN					GPIO_PIN_12
+#define STATUS2_LED_PIN					GPIO_PIN_14
+#define STATUS3_LED_PIN					GPIO_PIN_13
 #define STATUS_LED_PORT					GPIOD
 #define STATUS_LED_CLK_ENABLE()			__HAL_RCC_GPIOD_CLK_ENABLE()
 #define STATUS_LED_CLK_DISABLE()		__HAL_RCC_GPIOD_CLK_DISABLE()
@@ -14,8 +16,10 @@ void SystemClock_Config(void);
 void BSP_Init() {
 	HAL_Init();
 	SystemClock_Config();
+	BSP_StatusLED_Init();
 	MOTOR_Init();
 	SERIAL_Init();
+	JOYSTICK_Init();
 }
 
 void BSP_StatusLED_Init() {
@@ -23,22 +27,23 @@ void BSP_StatusLED_Init() {
 
 	STATUS_LED_CLK_ENABLE();
 
-	GPIO_InitStruct.Pin = STATUS_LED_PIN;
+	GPIO_InitStruct.Pin = STATUS_LED_PIN | STATUS2_LED_PIN | STATUS3_LED_PIN ;
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
 	GPIO_InitStruct.Pull = GPIO_PULLUP;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FAST;
 
 	HAL_GPIO_Init(STATUS_LED_PORT, &GPIO_InitStruct);
 
-	HAL_GPIO_WritePin(STATUS_LED_PORT, STATUS_LED_PIN, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(STATUS_LED_PORT, STATUS_LED_PIN | STATUS2_LED_PIN | STATUS3_LED_PIN, GPIO_PIN_RESET);
+
 }
 
 void BSP_StatusLED_Set() {
-	HAL_GPIO_WritePin(STATUS_LED_PORT, STATUS_LED_PIN, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(STATUS_LED_PORT, STATUS3_LED_PIN, GPIO_PIN_SET);
 }
 
 void BSP_StatusLED_Reset() {
-	HAL_GPIO_WritePin(STATUS_LED_PORT, STATUS_LED_PIN, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(STATUS_LED_PORT, STATUS3_LED_PIN, GPIO_PIN_RESET);
 }
 
 void BSP_Delay(uint32_t ms) {
